@@ -28,6 +28,10 @@ public class TelaAcumuloResgate {
 	private Text inputSaldo;
 	private Text inputValor;
 	private Combo comboBoxTipoDeResgate;
+	private Button btnBuscar;
+	private Button btnVoltar;
+	private Button btnAcumularResgatar;
+	private Button[] operacaoRadios;
 	
 	/**
 	 * Launch the application.
@@ -68,13 +72,15 @@ public class TelaAcumuloResgate {
 		Label labelCaixaDeBonus = new Label(shell, SWT.NONE);
 		labelCaixaDeBonus.setBounds(41, 40, 121, 20);
 		labelCaixaDeBonus.setText("Caixa de bônus");
-		inputCaixaDeBonus = new Text(shell, SWT.BORDER);
+		Text inputCaixaDeBonus = new Text(shell, SWT.BORDER);
 		inputCaixaDeBonus.setBounds(168, 40, 93, 20);
+		this.inputCaixaDeBonus = inputCaixaDeBonus;
 		
 		Label labelOperacao = new Label(shell, SWT.NONE);
 		labelOperacao.setBounds(41, 100, 121, 20);
 		labelOperacao.setText("Operação");
 		Button[] operacaoRadios = new Button[3];
+		this.operacaoRadios = operacaoRadios;
 		operacaoRadios[0] = new Button(shell, SWT.RADIO);
 		operacaoRadios[0].setText("Acumular");
 		operacaoRadios[0].setEnabled(true);
@@ -85,15 +91,22 @@ public class TelaAcumuloResgate {
 		operacaoRadios[1].setEnabled(true);
 		
 		Button btnBuscar = new Button(shell, SWT.NONE);
+		this.btnBuscar = btnBuscar;
 		Button btnAcumularResgatar = new Button(shell, SWT.NONE);
+		this.btnAcumularResgatar = btnAcumularResgatar;
 		Button btnVoltar = new Button(shell, SWT.NONE);
+		this.btnVoltar = btnVoltar;
 		
 		btnBuscar.setBounds(170, 180, 90, 30);
 		btnBuscar.setText("Buscar");
 		btnBuscar.setEnabled(true);
 		btnBuscar.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseDown(MouseEvent e) {	
+			public void mouseDown(MouseEvent e) {
+				if (inputCaixaDeBonus.getText() == null) {
+					JOptionPane.showInternalMessageDialog(null, "Preencha o campo de caixa de bônus.");
+					return;
+				}
 								
 				CaixaDeBonus caixaDeBonus = caixaDeBonusDAO.buscar(Long.parseLong(inputCaixaDeBonus.getText()));
 				
@@ -126,23 +139,25 @@ public class TelaAcumuloResgate {
 		Label labelSaldo = new Label(shell, SWT.NONE);
 		labelSaldo.setBounds(41, 220, 121, 20);
 		labelSaldo.setText("Saldo");
-		inputSaldo = new Text(shell, SWT.BORDER);
+		Text inputSaldo = new Text(shell, SWT.BORDER);
 		inputSaldo.setEnabled(false);
 		inputSaldo.setBounds(168, 220, 93, 20);
+		this.inputSaldo = inputSaldo;
 
 		Label labelTipoDeResgate = new Label(shell, SWT.NONE);
 		labelTipoDeResgate.setBounds(41, 250, 121, 20);
 		labelTipoDeResgate.setText("Tipo de resgate");
-	    comboBoxTipoDeResgate = new Combo(shell, SWT.READ_ONLY);
+	    Combo comboBoxTipoDeResgate = new Combo(shell, SWT.READ_ONLY);
 	    comboBoxTipoDeResgate.setBounds(168, 250, 93, 20);
 	    String items[] = { "CASH", "SERVIÇO", "PRODUTO"};
 	    comboBoxTipoDeResgate.setItems(items);
 	    comboBoxTipoDeResgate.setEnabled(false);
+	    this.comboBoxTipoDeResgate = comboBoxTipoDeResgate;
 	    
 		Label labelValor = new Label(shell, SWT.NONE);
 		labelValor.setBounds(41, 280, 121, 20);
 		labelValor.setText("Valor");
-		inputValor = new Text(shell, SWT.BORDER);
+		Text inputValor = new Text(shell, SWT.BORDER);
 		inputValor.setEnabled(false);
 		inputValor.setBounds(168, 280, 93, 20);
 		inputValor.addVerifyListener(new VerifyListener() {
@@ -156,6 +171,7 @@ public class TelaAcumuloResgate {
 		        }
 		    }
 		});
+		this.inputValor = inputValor;
 		
 				
 		btnAcumularResgatar.setBounds(170, 320, 90, 30);
@@ -165,22 +181,18 @@ public class TelaAcumuloResgate {
 			@Override
 			public void mouseDown(MouseEvent e) {					
 				if (inputValor.getText().length() == 0 || inputSaldo.getText().length() == 0) {
-					//JOptionPane.showMessageDialog(null, "Preencha os campos!");
-					System.out.println("Preencha os campos!");
+					JOptionPane.showMessageDialog(null, "Preencha os campos!");
 					return;
 				}
 				
 				double valorValidado = Double.parseDouble(inputValor.getText());
-				
-				System.out.println("Valor validado: " + valorValidado);
-				
+								
 				if (operacaoRadios[0].getSelection() == true) {
 					
 					String operacaoAcumularBonus = mediator.acumularBonus(Long.parseLong(inputCaixaDeBonus.getText()), valorValidado);
 					
 					if (operacaoAcumularBonus == null) {
 						JOptionPane.showMessageDialog(null, "Operação de acumular concluída com sucesso!");	
-						//System.out.println("Operação de acumular concluída com sucesso!");
 						inputCaixaDeBonus.setText("");
 						inputSaldo.setText("");
 						inputValor.setText("");
@@ -201,7 +213,6 @@ public class TelaAcumuloResgate {
 						btnAcumularResgatar.setEnabled(false);
 					} else {
 						JOptionPane.showMessageDialog(null, operacaoAcumularBonus);	
-						//System.out.println(operacaoAcumularBonus);						
 					}
 				} else {
 					TipoResgate tipo = null;
@@ -218,7 +229,6 @@ public class TelaAcumuloResgate {
 					
 					if (operacaoResgatarBonus == null) {
 						JOptionPane.showMessageDialog(null, "Operação de resgatar concluída com sucesso!");	
-						//System.out.println("Operação de resgatar concluída com sucesso!");
 						inputCaixaDeBonus.setText("");
 						inputSaldo.setText("");
 						inputValor.setText("");
@@ -239,7 +249,6 @@ public class TelaAcumuloResgate {
 						btnAcumularResgatar.setEnabled(false);
 					} else {
 						JOptionPane.showMessageDialog(null, operacaoResgatarBonus);	
-						//System.out.println(operacaoResgatarBonus);						
 					}
 				}
 			}
